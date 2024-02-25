@@ -1,84 +1,64 @@
 package frc.robot;
 
-import java.util.List;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathPlannerPath;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.proto.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.Constants.AutoConstants;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.SwerveJoystickCmd;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class RobotContainer {
 
+
     private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
-    private final Joystick driverJoytick = new Joystick(OIConstants.kDriverControllerPort);
-
+    private final Joystick driverJoystick = new Joystick(OIConstants.kDriverControllerPort);
+  
+    // Auton stuff
+    // private final SendableChooser<Command> autoChooser;
+    
     public RobotContainer() {
         swerveSubsystem.setDefaultCommand(new SwerveJoystickCmd(
                 swerveSubsystem,
-                () -> -driverJoytick.getRawAxis(OIConstants.kDriverYAxis),
-                () -> driverJoytick.getRawAxis(OIConstants.kDriverXAxis),
-                () -> driverJoytick.getRawAxis(OIConstants.kDriverRotAxis),
-                () -> !driverJoytick.getRawButton(OIConstants.kDriverFieldOrientedButtonIdx)));
+                () -> -driverJoystick.getRawAxis(OIConstants.kDriverYAxis),
+                () -> driverJoystick.getRawAxis(OIConstants.kDriverXAxis),
+                () -> driverJoystick.getRawAxis(OIConstants.kDriverRotAxis),
+                () -> !driverJoystick.getRawButton(OIConstants.kDriverFieldOrientedButtonIdx))); //  the ! says "be field relative as long as the button is not pressed."
+
+    // Auton Stuff:
+        // autoChooser = AutoBuilder.buildAutoChooser();
+        // SmartDashboard.putData("Auto Chooser",autoChooser);
+        // Register Named Commands
+       /* NamedCommands.registerCommand("autoBalance", swerve.autoBalanceCommand());
+        NamedCommands.registerCommand("exampleCommand", exampleSubsystem.exampleCommand());
+        NamedCommands.registerCommand("someOtherCommand", new SomeOtherCommand());*/ 
 
         configureButtonBindings();
     }
 
-    private void configureButtonBindings() {
-        new JoystickButton(driverJoytick, 2).onTrue(new InstantCommand(()-> swerveSubsystem.zeroHeading()) );
+    private void configureButtonBindings() { // why are these here and not in constants?
+        // buttons are apparently numbered 1-9, not 0-8
+        // from constants, kDriverFieldOrientedButtonIdx = 5; // lets try using the "L" button for this. 
+        new JoystickButton(driverJoystick, 6).onTrue(new InstantCommand(()-> swerveSubsystem.zeroHeading()) ); // use the R button for this. this zero's the GYRO??
+        // We shouldn't need to reset the turning encoders anynmore. The turning encoders reflect the absolute value of the CANcoders. 
+        // unless we skipped a belt or something.  shouldnt hurt though. 
+        // new JoystickButton(driverJoystick, 3).onTrue(new InstantCommand(() -> swerveSubsystem.resetTurningEncoders())); // this is the Y button
     }
 
     public Command getAutonomousCommand() {
-      return null;
-        // 1. Create trajectory settings
-        // TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-        //         AutoConstants.kMaxSpeedMetersPerSecond,
-        //         AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-        //                 .setKinematics(DriveConstants.kDriveKinematics);
+        // return autoChooser.getSelected();
+         // Load the path you want to follow using its name in the GUI
+        PathPlannerPath path = PathPlannerPath.fromPathFile("Mobility");
 
-        // // 2. Generate trajectory
-        // Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
-        //         new Pose2d(0, 0, new Rotation2d(0)),
-        //         List.of(
-        //                 new Translation2d(1, 0),
-        //                 new Translation2d(1, -1)),
-        //         new Pose2d(2, -1, Rotation2d.fromDegrees(180)),
-        //         trajectoryConfig);
-
-        // // 3. Define PID controllers for tracking trajectory
-        // PIDController xController = new PIDController(AutoConstants.kPXController, 0, 0);
-        // PIDController yController = new PIDController(AutoConstants.kPYController, 0, 0);
-        // ProfiledPIDController thetaController = new ProfiledPIDController(
-        //         AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
-        // thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-        // // 4. Construct command to follow trajectory
-        // SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
-        //         trajectory,
-        //         swerveSubsystem::getPose,
-        //         DriveConstants.kDriveKinematics,
-        //         xController,
-        //         yController,
-        //         thetaController,
-        //         swerveSubsystem::setModuleStates,
-        //         swerveSubsystem);
-
-        // // 5. Add some init and wrap-up, and return everything
-        // return new SequentialCommandGroup(
-        //         new InstantCommand(() -> swerveSubsystem.resetOdometry(trajectory.getInitialPose())),
-        //         swerveControllerCommand,
-        //         new InstantCommand(() -> swerveSubsystem.stopModules()));
+        // Create a path following command using AutoBuilder. This will also trigger event markers.
+        return AutoBuilder.followPath(path);
     }
 }

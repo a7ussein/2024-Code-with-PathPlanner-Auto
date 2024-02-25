@@ -31,19 +31,22 @@ public class SwerveModule {
 
         this.absoluteEncoderOffsetRad = absoluteEncoderOffset;
         this.absoluteEncoderReversed = absoluteEncoderReversed;
-       absoluteEncoder = new CANcoder(absoluteEncoderId);
 
         driveMotor = new CANSparkMax(driveMotorId, MotorType.kBrushless);
         turningMotor = new CANSparkMax(turningMotorId, MotorType.kBrushless);
+    
+        driveEncoder = driveMotor.getEncoder();
+        turningEncoder = turningMotor.getEncoder();
 
         driveMotor.setInverted(driveMotorReversed);
         turningMotor.setInverted(turningMotorReversed);
 
-        driveEncoder = driveMotor.getEncoder();
-        turningEncoder = turningMotor.getEncoder();
+        absoluteEncoder = new CANcoder(absoluteEncoderId);
+        // absoluteEncoder.setPosition(0);// THIS!!!!!!! This line was resetting our Absolutes to zero on boot! Who put that here? lol!
 
         driveEncoder.setPositionConversionFactor(ModuleConstants.kDriveEncoderRot2Meter);
         driveEncoder.setVelocityConversionFactor(ModuleConstants.kDriveEncoderRPM2MeterPerSec);
+
         turningEncoder.setPositionConversionFactor(ModuleConstants.kTurningEncoderRot2Rad);
         turningEncoder.setVelocityConversionFactor(ModuleConstants.kTurningEncoderRPM2RadPerSec);
 
@@ -59,6 +62,8 @@ public class SwerveModule {
 
     public double getTurningPosition() {
         return turningEncoder.getPosition();
+        //return getAbsoluteEncoderPosition();
+        // return absoluteEncoder.getAbsolutePosition().getValueAsDouble();
     }
 
     public double getDriveVelocity() {
@@ -75,15 +80,32 @@ public class SwerveModule {
         return new SwerveModulePosition(getDrivePosition(), new Rotation2d(getTurningPosition() ));
     }
 
-   
-
-    private double getAbsoluteEncoderPosition() {
+    public double getAbsoluteEncoderPosition() {
         return absoluteEncoder.getAbsolutePosition().getValueAsDouble();
+    }
+
+    public double getAbsoluteEncoderAngle() {
+       return absoluteEncoder.getAbsolutePosition().getValueAsDouble(); 
+    }
+
+    public double getAbsoluteEncoderRad() {
+        double angle = absoluteEncoder.getAbsolutePosition().getValue();
+        angle *= 2.0 * Math.PI;
+        angle -= absoluteEncoderOffsetRad;
+        return angle * (absoluteEncoderReversed ? -1.0 : 1.0);
     }
 
     public void resetEncoders() {
         driveEncoder.setPosition(0);
-        turningEncoder.setPosition(getAbsoluteEncoderPosition());
+        turningEncoder.setPosition(getAbsoluteEncoderRad());
+    }
+    
+
+    public void resetEncoders1() {
+        driveEncoder.setPosition(0);
+        turningEncoder.setPosition(getAbsoluteEncoderPosition()); // * 2.0 * Math.PI) ?
+        //SmartDashboard.putNumber("Swerve abs[" + absoluteEncoder.getDeviceID() + "] state", getAbsoluteEncoderPosition());
+        //turningEncoder.getPosition();
     }
 
     public SwerveModuleState getState() {
