@@ -1,8 +1,5 @@
 package frc.robot.subsystems;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.util.ReplanningConfig;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -11,13 +8,13 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 
 public class SwerveSubsystem extends SubsystemBase {
-    private final SwerveModule frontLeft = new SwerveModule(
+    public final SwerveModule frontLeft = new SwerveModule(
             DriveConstants.kFrontLeftDriveMotorPort,
             DriveConstants.kFrontLeftTurningMotorPort,
             DriveConstants.kFrontLeftDriveEncoderReversed,
@@ -64,7 +61,6 @@ public class SwerveSubsystem extends SubsystemBase {
               frontRight.getPosition()
             }, new Pose2d(0, 0, new Rotation2d()));
 
-
     public SwerveSubsystem() {
         new Thread(() -> {
             try {
@@ -73,27 +69,6 @@ public class SwerveSubsystem extends SubsystemBase {
             } catch (Exception e) {
             }
         }).start();
-
-
-        AutoBuilder.configureRamsete(
-            this::getPose, // Robot pose supplier
-            this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
-            this::getChassisSpeeds, // Current ChassisSpeeds supplier
-            this::setChassisSpeeds, // Method that will drive the robot given ChassisSpeeds
-            new ReplanningConfig(), // Default path replanning config. See the API for the options here
-            () -> {
-              // Boolean supplier that controls when the path will be mirrored for the red alliance
-              // This will flip the path being followed to the red side of the field.
-              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
-              var alliance = DriverStation.getAlliance();
-              if (alliance.isPresent()) {
-                return alliance.get() == DriverStation.Alliance.Red;
-              }
-              return false;
-            },
-            this // Reference to this subsystem to set requirements
-    );
     }
 
     public void resetTurningEncoders() {
@@ -120,30 +95,18 @@ public class SwerveSubsystem extends SubsystemBase {
         return kOdometry.getPoseMeters();
     }
 
-    public void resetPose(Pose2d pose) {
-        kOdometry.resetPosition(getRotation2d(), new SwerveModulePosition[] {
+    // called from auto
+    public void resetOdometry(Pose2d pose) {
+        Rotation2d rot = Rotation2d.fromDegrees(180);
+        kOdometry.resetPosition(rot, new SwerveModulePosition[] {
             backLeft.getPosition(),
             backRight.getPosition(),
             frontLeft.getPosition(),
             frontRight.getPosition()
           }, pose);
     }
-// Added for Auton
-    public ChassisSpeeds getChassisSpeeds() {
-    return DriveConstants.kDriveKinematics.toChassisSpeeds(
-      // supplier for chassisSpeed, order of motors need to be the same as the consumer of ChassisSpeed
-      frontLeft.getState(), 
-      backLeft.getState(),
-      frontRight.getState(),
-      backRight.getState()
-      );
-  }
-  // Added for Auton
 
-  public void setChassisSpeeds(ChassisSpeeds chassisSpeeds) {
-    setModuleStates(
-      DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds));
-  }
+
     @Override
     public void periodic() {
         kOdometry.update(getRotation2d(), new SwerveModulePosition[] {
@@ -152,12 +115,9 @@ public class SwerveSubsystem extends SubsystemBase {
             frontLeft.getPosition(),
             frontRight.getPosition()
           });
-        // odometer.update(getRotation2d(), frontLeft.getState(), frontRight.getState(), backLeft.getState(), backRight.getState());
-       // SmartDashboard.putNumber("Robot Heading", gyro.getAngle(gyro.getYawAxis()));
-        // SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
+          SmartDashboard.putNumber("Robot Heading", getHeading());
+          SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
     }
-
-    
 
     public void stopModules() {
         frontLeft.stop();

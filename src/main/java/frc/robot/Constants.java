@@ -84,13 +84,13 @@ public final class Constants {
     }
 
     public static final class AutoConstants {
-        public static final double kMaxSpeedMetersPerSecond = DriveConstants.kPhysicalMaxSpeedMetersPerSecond / 4;
-        public static final double kMaxAngularSpeedRadiansPerSecond = DriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 10;
-        public static final double kMaxAccelerationMetersPerSecondSquared = 3;
-        public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
-        public static final double kPXController = 0.5;
-        public static final double kPYController = 0.5;
-        public static final double kPThetaController = 0.5;
+        public static final double kMaxSpeedMetersPerSecond = DriveConstants.kPhysicalMaxSpeedMetersPerSecond;// / 4;
+        public static final double kMaxAngularSpeedRadiansPerSecond = DriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 2;// 10;
+        public static final double kMaxAccelerationMetersPerSecondSquared = 2;
+        public static final double kMaxAngularAccelerationRadiansPerSecondSquared = 2; // Math.PI / 4;
+        public static final double kPXController = 0.1;
+        public static final double kPYController = 0.1;
+        public static final double kPThetaController = 0.1;
 
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints = //
                 new TrapezoidProfile.Constraints(
@@ -100,6 +100,7 @@ public final class Constants {
 
     public static final class OIConstants {
         public static final int kDriverControllerPort = 0;
+        public static final int kOperatorControllerPort = 2;
 
         public static final int kDriverYAxis = 1; // -forward and +reverse
         public static final int kDriverXAxis = 0; // -left and +right
@@ -107,5 +108,19 @@ public final class Constants {
         public static final int kDriverFieldOrientedButtonIdx = 5; // lets try using the "L" button for this. 
 
         public static final double kDeadband = 0.05;
+
+        public static final int kOperatorGreenButton = 8;
+        
+    }
+
+    public static final class IntakeConstants {
+        public static final int kMotorPort = 52;
+        public static final double kSpeed = 0.05;
+        public static int kSensorPort = 0; // DIO
+    }
+
+    public static final class ShooterConstants {
+        public static final int kMotorPort = 51;
+        public static final double kSpeed = 0.05;
     }
 }

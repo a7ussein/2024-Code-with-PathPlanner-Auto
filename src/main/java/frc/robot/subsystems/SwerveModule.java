@@ -101,12 +101,12 @@ public class SwerveModule {
     }
     
 
-    public void resetEncoders1() {
-        driveEncoder.setPosition(0);
-        turningEncoder.setPosition(getAbsoluteEncoderPosition()); // * 2.0 * Math.PI) ?
-        //SmartDashboard.putNumber("Swerve abs[" + absoluteEncoder.getDeviceID() + "] state", getAbsoluteEncoderPosition());
-        //turningEncoder.getPosition();
-    }
+    // public void resetEncoders1() {
+    //     driveEncoder.setPosition(0);
+    //     turningEncoder.setPosition(getAbsoluteEncoderPosition()); // * 2.0 * Math.PI) ?
+    //     //SmartDashboard.putNumber("Swerve abs[" + absoluteEncoder.getDeviceID() + "] state", getAbsoluteEncoderPosition());
+    //     //turningEncoder.getPosition();
+    // }
 
     public SwerveModuleState getState() {
         return new SwerveModuleState(getDriveVelocity(), new Rotation2d(getTurningPosition()));

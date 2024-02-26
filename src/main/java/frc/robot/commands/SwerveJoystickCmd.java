@@ -42,6 +42,7 @@ public class SwerveJoystickCmd extends Command {
         double xSpeed = xSpdFunction.get() * -1;
         double ySpeed = ySpdFunction.get() * -1;
         double turningSpeed = turningSpdFunction.get() * -1;
+
         SmartDashboard.putNumber("theta0", turningSpeed);
         // 2. Apply deadband
         xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0.01;
@@ -53,8 +54,6 @@ public class SwerveJoystickCmd extends Command {
         ySpeed = yLimiter.calculate(ySpeed) * DriveConstants.kTeleDriveMaxSpeedMetersPerSecond;
         turningSpeed = turningLimiter.calculate(turningSpeed) * DriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond;
 
-   
-        
         // 4. Construct desired chassis speeds
         ChassisSpeeds chassisSpeeds;
         if (fieldOrientedFunction.get()) {
