@@ -29,7 +29,7 @@ public class AutoCommands {
         this.shooterSubsystem = shooterSubsystem;
     }
 
-    public Command getSimpleMoveForwardCommand() {
+    public Command moveCommand(double x1, double y1, double rot1, double translation2dX, double translation2dY, double x2, double y2, double rot2) {
                 // 1. Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
                 AutoConstants.kMaxSpeedMetersPerSecond,
@@ -38,10 +38,10 @@ public class AutoCommands {
                     
         // 2. Generate trajectory
         Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
-                new Pose2d(2, 7, new Rotation2d(0)),
+                new Pose2d(x1, y1, new Rotation2d(rot1)),
                 List.of(
-                        new Translation2d(2.61,7)),
-                new Pose2d(3, 7, Rotation2d.fromDegrees(0)),
+                        new Translation2d(translation2dX,translation2dY)),
+                new Pose2d(x2, y2, Rotation2d.fromDegrees(rot2)),
                 trajectoryConfig);
 
         // 3. Define PID controllers for tracking trajectory
@@ -70,9 +70,15 @@ public class AutoCommands {
 
     }
 
+//       Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+//                 new Pose2d(2, 7, new Rotation2d(0)),
+//                 List.of(
+//                         new Translation2d(2.61,7)),
+//                 new Pose2d(3, 7, Rotation2d.fromDegrees(0)),
+//                 trajectoryConfig);
 
 
     public Command OneNotePlusMobility(){
-        return new SequentialCommandGroup(new InstantCommand(() -> shooterSubsystem.shoot()), getSimpleMoveForwardCommand());
+        return new SequentialCommandGroup(new InstantCommand(() -> shooterSubsystem.shoot()), moveCommand(2, 7, 0, 2.61, 7, 3, 7, 0));
     }
 }

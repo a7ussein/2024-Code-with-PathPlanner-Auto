@@ -74,7 +74,7 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         switch (auto_chooser.getSelected()) {
             case kMobility:
-                return autoCommands.getSimpleMoveForwardCommand();
+                return autoCommands.moveCommand(2, 7, 0, 2.61, 7, 3, 7, 0);
             case kOneNotePlusMobility:   
                 return autoCommands.OneNotePlusMobility();
             default:
