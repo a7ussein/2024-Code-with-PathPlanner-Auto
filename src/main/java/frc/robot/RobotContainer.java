@@ -19,7 +19,7 @@ public class RobotContainer {
     private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
     private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
     private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-    private final AutoCommands autoCommands = new AutoCommands(swerveSubsystem, shooterSubsystem);
+    private final AutoCommands autoCommands = new AutoCommands(swerveSubsystem, shooterSubsystem, intakeSubsystem);
 
     private final Joystick driverJoystick = new Joystick(OIConstants.kDriverControllerPort);
     private final Joystick operatorJoystick = new Joystick(OIConstants.kOperatorControllerPort);
@@ -28,6 +28,7 @@ public class RobotContainer {
     private static final String kdefaultAuto = "Nothing Auto";
     private static final String kMobility = "Mobility";
     private static final String kOneNotePlusMobility = "One Note + Mobility";
+    private static final String kTwoNoteAuto = "Two Note Auto";
 
     public RobotContainer() {
         // intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem));
@@ -36,6 +37,7 @@ public class RobotContainer {
         auto_chooser.setDefaultOption("Nothing Auto", kdefaultAuto);
         auto_chooser.addOption("Mobility", kMobility);
         auto_chooser.addOption("Mobility + One Note", kOneNotePlusMobility);
+        auto_chooser.addOption("Two Note Auto", kTwoNoteAuto);
 
         swerveSubsystem.setDefaultCommand(new SwerveJoystickCmd(
                 swerveSubsystem,
@@ -74,11 +76,13 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         switch (auto_chooser.getSelected()) {
             case kMobility:
-                return autoCommands.moveCommand(2, 7, 0, 2.61, 7, 3, 7, 0);
+                return autoCommands.Mobility();
             case kOneNotePlusMobility:   
                 return autoCommands.OneNotePlusMobility();
+            case kTwoNoteAuto:
+                return autoCommands.twoNoteAuto();
             default:
-                return null;
+                return autoCommands.doNothing();
         }
     }
 }

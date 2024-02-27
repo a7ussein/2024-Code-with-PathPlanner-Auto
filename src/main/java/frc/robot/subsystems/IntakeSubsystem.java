@@ -9,7 +9,7 @@ import frc.robot.Constants;
 import com.revrobotics.CANSparkMax;
 
 public class IntakeSubsystem extends SubsystemBase {
-     // private final CANSparkMax intakeMotor = new CANSparkMax(Constants.IntakeConstants.kMotorPort, MotorType.kBrushless);
+     private final CANSparkMax intakeMotor = new CANSparkMax(Constants.IntakeConstants.kMotorPort, MotorType.kBrushless);
      public final DigitalInput m_sensor = new DigitalInput(Constants.IntakeConstants.kSensorPort);
 
      public IntakeSubsystem(){
@@ -18,12 +18,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
      public void startIntake() {
           System.out.println("starting intake");
-          // intakeMotor.set(Constants.IntakeConstants.kSpeed);
+          intakeMotor.set(Constants.IntakeConstants.kSpeed);
      }
 
      public void stopIntake() {
           System.out.println("stopping intake");
-          // intakeMotor.set(0);
+          intakeMotor.set(0);
      }
 
      @Override

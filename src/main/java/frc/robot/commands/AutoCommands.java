@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -23,10 +24,16 @@ public class AutoCommands {
 
     private SwerveSubsystem swerveSubsystem;
     private ShooterSubsystem shooterSubsystem;
+    private IntakeSubsystem intakeSubsystem;
 
-    public AutoCommands(SwerveSubsystem swerveSubsystem, ShooterSubsystem shooterSubsystem) {
+    public AutoCommands(SwerveSubsystem swerveSubsystem, ShooterSubsystem shooterSubsystem, IntakeSubsystem intakeSubsystem) {
         this.swerveSubsystem = swerveSubsystem;
         this.shooterSubsystem = shooterSubsystem;
+        this.intakeSubsystem = intakeSubsystem;
+    }
+
+    public Command doNothing(){
+        return new InstantCommand(() -> swerveSubsystem.stopModules());
     }
 
     public Command moveCommand(double x1, double y1, double rot1, double translation2dX, double translation2dY, double x2, double y2, double rot2) {
@@ -78,7 +85,21 @@ public class AutoCommands {
 //                 trajectoryConfig);
 
 
-    public Command OneNotePlusMobility(){
-        return new SequentialCommandGroup(new InstantCommand(() -> shooterSubsystem.shoot()), moveCommand(2, 7, 0, 2.61, 7, 3, 7, 0));
+    public Command Mobility(){
+        return new InstantCommand(() -> moveCommand(2, 7, 0, 2.61, 7, 3, 7, 0));
     }
+    public Command OneNotePlusMobility(){
+        return new SequentialCommandGroup(new InstantCommand(() -> shooterSubsystem.shoot()),  moveCommand(2, 7, 0, 2.61, 7, 3, 7, 0));
+    }
+    
+    public Command twoNoteAuto(){
+        return new SequentialCommandGroup(
+            moveCommand(2, 7, 0, 2.46, 7, 2.92, 7, 0),
+            new InstantCommand(intakeSubsystem::startIntake),
+            moveCommand(2.92, 7, 0, 2.46, 7, 2, 7, 0),
+            new InstantCommand(() -> shooterSubsystem.shoot())
+        );
+    }
+    
+    
 }
